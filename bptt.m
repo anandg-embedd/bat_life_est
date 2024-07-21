@@ -28,7 +28,7 @@ function [dWih, dWhh, dWho, dbh, dz_t] = bptt(Wih, Whh, Who, ht, zt, o, train_ou
         ind = ind + 1;
         
         % T'den t_1 e kadar olan tum gradientler toplanir.
-        dWih = dWih + dz_t(:, ind) * train_in(t);
+        dWih = dWih + dz_t(:, ind) * train_in(t,:);
         dWhh = dWhh + dz_t(:, ind) * ht(:, t)';
         dWho = dWho + do_t(t) * ht(:, t+1)';
         dbh = dbh + dz_t(:,ind);

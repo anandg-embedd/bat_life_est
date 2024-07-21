@@ -31,25 +31,20 @@ clc;
 % data = (x - [ones(size(x, 1), 1) * Zmin]) ./ ([ones(size(x, 1), 1) * Zmax] - [ones(size(x, 1), 1) * Zmin]);
 % x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon);
 
-load henondata x;
-NumberOfInputs = 1;
-LengthOfTimeSeries =501;
+filename='Battery_RUL.csv';
+x = readmatrix( filename );
+NumberOfInputs = 7;
+LengthOfTimeSeries =length(x)-100;
 PredictHorizon = 100;
-data = x(1:LengthOfTimeSeries);
+%data = x(1:LengthOfTimeSeries,:);
 lambda = 0.0;
 Z = x;
-Zmin = min(Z); Zmax = max(Z);
-data = (x - [ones(size(x, 1), 1) * Zmin]) ./ ([ones(size(x, 1), 1) * Zmax] - [ones(size(x, 1), 1) * Zmin]);
-x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon);
+Zmin = min(min(Z)); Zmax = max(max(Z));
+data = (x -  Zmin) ./ (Zmax -  Zmin);
+x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
 
-
-X = []; y = []; k = 0; loop = 1;
-while loop
-    k = k + 1;
-    X = [X; data(k+0:k+NumberOfInputs-1)];
-    y = [y; data(k+NumberOfInputs)];
-    if k+NumberOfInputs >= LengthOfTimeSeries; loop = 0; end
-end
+X = data(1:LengthOfTimeSeries,2:end-1);
+y = data(1:LengthOfTimeSeries,end);
 
 
 
@@ -66,7 +61,7 @@ num_valdata = size(val_in, 1);
 
 
 
-d = 1; % Her t adimda 1 input.
+d = size(X,2); % Her t adimda 1 input.
 q = 1;
 tau = 5; % tBPTT constant for unfolding
 
@@ -129,9 +124,9 @@ for N = 1:N_max
         % --------- Gradient descent ile Parametre Update -----------
         [Theta] = gradDes(learning_rate, dTheta, Theta);
 
-        Wih = Theta(:,1);
-        Whh = Theta(:,2:N+1);
-        Who = Theta(:,N+2)';
+        Wih = Theta(:,1:d);
+        Whh = Theta(:,d+1:d+N);
+        Who = Theta(:,d+N+1)';
         bh = Theta(:,end);
         
         
@@ -243,16 +238,16 @@ hold off
 % --------- PREDICTION -----------
 
 err_test = 0;
-INPUT = zeros(length(x_test),1);
-INPUT(1) = data(end);
+INPUT = zeros(length(x_test),d);
+INPUT = x_test(:,1:end-1);
 
 o = []; zt = []; ht = zeros(N_best, 1);
 for k = 1:length(x_test)
 
     [o, ht, zt] = forward(INPUT, Wih_best, Whh_best, Who_best, bh_best, ht, zt, o, k);
-    INPUT(k+1) = o(k);
+
 end
-err_test = sum((o - x_test').^2) / length(x_test);
+err_test = sum((o - x_test(:,end)).^2) / length(x_test);
 fprintf("MSE TEST: %f  \n", err_test);
 
 

@@ -6,7 +6,7 @@ function [o, ht, zt] = forward(x, Wih, Whh, Who, bh, ht, zt, o, K)
     %ht 1 sutun fazla basladi. Yani kodlarken literaturde "ht-1 olan bu kodda ht" 
     %ve dolayisiyla "ht ise ht+1" oldu. Sadece index kolayligi olmasi icin.
 
-    zt = [zt, Wih*x(K) + Whh*ht(:,K) + bh];
+    zt = [zt, Wih*x(K,:)' + Whh*ht(:,K) + bh];
 
     ht = [ht tanh(zt(:,K))];
     % ht = [ht sigmoid(zt(:,K))];
