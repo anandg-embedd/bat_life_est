@@ -31,16 +31,16 @@ clc;
 % data = (x - [ones(size(x, 1), 1) * Zmin]) ./ ([ones(size(x, 1), 1) * Zmax] - [ones(size(x, 1), 1) * Zmin]);
 % x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon);
 
-filename='Battery_RUL.csv';
-x = readmatrix( filename );
+filename='Battery_RUL_head_removed.csv';
+x = csvread( filename );
 NumberOfInputs = 7;
 LengthOfTimeSeries =length(x)-100;
 PredictHorizon = 100;
 %data = x(1:LengthOfTimeSeries,:);
 lambda = 0.0;
 Z = x;
-Zmin = min(min(Z)); Zmax = max(max(Z));
-data = (x -  Zmin) ./ (Zmax -  Zmin);
+Zmin = min(Z); Zmax = max(Z);
+data = (x -  repmat(Zmin,length(x),1)) ./ repmat((Zmax -  Zmin),length(x),1);
 x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
 
 X = data(1:LengthOfTimeSeries,2:end-1);
@@ -141,7 +141,7 @@ for N = 1:N_max
         
         err(n) = sum((o - train_out).^2) / length(train_out);
         
-        fprintf(" MSE : %f \n", err(n));
+        fprintf('MSE : %f \n', err(n));
         title(['N = ', num2str(N), ', Iteration = ', num2str(n), ', Error (MSE) = ', num2str(err(n))]);
         figure(1)
         plot(o)
@@ -225,7 +225,7 @@ for N = 1:N_max
 
    
     
-    fprintf("MSE TRAINING: %f  MSE VALIDATION: %f \n", err_train(N), err_val(N));
+    fprintf('MSE TRAINING: %f  MSE VALIDATION: %f \n', err_train(N), err_val(N));
 end
 
 figure(2)
@@ -248,7 +248,7 @@ for k = 1:length(x_test)
 
 end
 err_test = sum((o - x_test(:,end)).^2) / length(x_test);
-fprintf("MSE TEST: %f  \n", err_test);
+fprintf('MSE TEST: %f  \n', err_test);
 
 
 figure(3)
@@ -256,6 +256,8 @@ plot(x_test)
 hold on
 plot(o)
 title(['N = ', num2str(N_best), ',  Test Error (MSE) = ', num2str(err_test)]);
-legend("desired","predicted");
+legend('desired','predicted');
 hold off
+
+save rnn_train.mat Wih_best Whh_best Who_best bh_best N_best Zmin Zmax
 
