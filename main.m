@@ -39,8 +39,11 @@ PredictHorizon = 100;
 %data = x(1:LengthOfTimeSeries,:);
 lambda = 0.0;
 Z = x;
-Zmin = min(Z); Zmax = max(Z);
-data = (x -  repmat(Zmin,length(x),1)) ./ repmat((Zmax -  Zmin),length(x),1);
+% Zmin = min(Z); Zmax = max(Z);
+% data = (x -  repmat(Zmin,length(x),1)) ./ repmat((Zmax -  Zmin),length(x),1);
+% x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
+Zmin = min(min(Z)); Zmax = max(max(Z));
+data = (x -  Zmin) ./ (Zmax -  Zmin);
 x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
 
 X = data(1:LengthOfTimeSeries,2:end-1);
@@ -142,11 +145,12 @@ for N = 1:N_max
         err(n) = sum((o - train_out).^2) / length(train_out);
         
         fprintf('MSE : %f \n', err(n));
-        title(['N = ', num2str(N), ', Iteration = ', num2str(n), ', Error (MSE) = ', num2str(err(n))]);
-        figure(1)
+        figure(1)      
         plot(o)
         hold on
         plot(train_out)
+        title(['N = ', num2str(N), ', Iteration = ', num2str(n), ', Error (MSE) = ', num2str(err(n))]);         
+        legend('Predicted', 'Desired');
         hold off
         
         
@@ -252,7 +256,7 @@ fprintf('MSE TEST: %f  \n', err_test);
 
 
 figure(3)
-plot(x_test)
+plot(x_test(:,end))
 hold on
 plot(o)
 title(['N = ', num2str(N_best), ',  Test Error (MSE) = ', num2str(err_test)]);
