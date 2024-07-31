@@ -33,18 +33,18 @@ clc;
 
 filename='Battery_RUL_head_removed.csv';
 x = csvread( filename );
+%x = x(1:5000,:);
 NumberOfInputs = 7;
 LengthOfTimeSeries =length(x)-100;
 PredictHorizon = 100;
-%data = x(1:LengthOfTimeSeries,:);
 lambda = 0.0;
 Z = x;
-% Zmin = min(Z); Zmax = max(Z);
-% data = (x -  repmat(Zmin,length(x),1)) ./ repmat((Zmax -  Zmin),length(x),1);
-% x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
-Zmin = min(min(Z)); Zmax = max(max(Z));
-data = (x -  Zmin) ./ (Zmax -  Zmin);
+Zmin = min(Z); Zmax = max(Z);
+data = (x -  repmat(Zmin,length(x),1)) ./ repmat((Zmax -  Zmin),length(x),1);
 x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
+% Zmin = min(min(Z)); Zmax = max(max(Z));
+% data = (x -  Zmin) ./ (Zmax -  Zmin);
+% x_test = data(LengthOfTimeSeries + 1:LengthOfTimeSeries + PredictHorizon,2:end);
 
 X = data(1:LengthOfTimeSeries,2:end-1);
 y = data(1:LengthOfTimeSeries,end);
@@ -76,13 +76,12 @@ divider = 1.1;
 
 for N = 1:N_max
     disp(N)
-    ht = zeros(N, 1);
     
     % Whh = rand(N, N);  
     % Wih = rand(N, d);
     % Who = rand(q, N);
   
-    learning_rate = 0.001;
+    learning_rate = 0.00001;
 
     %  --------- GLOROT UNIFROM WEIGHT INITILIZATION -----------
     Whh = unifrnd(-w_limit, w_limit, [N, N]); %Hidden-hidden arasi weight matrisi
@@ -167,7 +166,7 @@ for N = 1:N_max
                 divider = divider + 0.1;
             end
             
-        elseif (isnan(err(n)))
+        elseif (isnan(err(n))) 
             break
         else
             count = 0;
@@ -241,8 +240,6 @@ legend('Training Error', 'Validation Error');
 hold off
 % --------- PREDICTION -----------
 
-err_test = 0;
-INPUT = zeros(length(x_test),d);
 INPUT = x_test(:,1:end-1);
 
 o = []; zt = []; ht = zeros(N_best, 1);

@@ -1,7 +1,7 @@
 function [dWih, dWhh, dWho, dbh, dz_t] = bptt(Wih, Whh, Who, ht, zt, o, train_out, train_in, tau, T)
     
     do_t = 2*(o - train_out(1:T)); % dL/do_t cikisin amac fonk göre türevi.
-    % do_t = 2*((o-train_out(1:K)).*dsigmoid(o));
+    % do_t = 2*((o-train_out(1:T)).*dsigmoid(o));
     dz_t = []; %columns are t backwards through time.
     ind = 0;
     dWih = 0;
